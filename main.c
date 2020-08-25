@@ -10,10 +10,10 @@
 #define TIMER_ID 1
 
 /*Definisemo granice po x,y i z kordinati*/
-#define X1 -5
-#define X2  5
-#define Y1 -5
-#define Y2  5
+#define X1 -4
+#define X2  4
+#define Y1 -4
+#define Y2  4
 #define Z1  0
 
 //Za translaciju koja se vrsi pomocu strelica na tastaturi
@@ -21,7 +21,7 @@ int Px=0,Py=0;
 int Pz=10;
 
 /*Definisemo granicu matrice*/
-#define XY 10
+#define XY 8
 #define Z 15
 
 static int window_width, window_height;
@@ -162,7 +162,7 @@ static void on_display(void)
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(0, 0, 20, 
+    gluLookAt(0, 0, 18, 
               0, 0, 0, 
               0, 1, 0);
     
@@ -312,7 +312,7 @@ void crtanjeDelovaScene(void)
                 if(status[i][j][k]==1){
                     glPushMatrix();
                         glTranslatef(0.5,0.5,0.5);
-                        glTranslatef(k-5,j-5,i);
+                        glTranslatef(k-4,j-4,i);
                         glutSolidCube(1);
                     glPopMatrix();
                 }     
@@ -361,7 +361,7 @@ for(int c = Z-1; c >= 0; c--){
                     }
                     granice=0;   
                     /*Proveravamo da li je kraj igre*/
-                    if(status[Pz][5][5]==1){
+                    if(status[Pz][4][4]==1){
                         free_mat(status, Z, XY);
                         exit(0);
                     }                   
@@ -624,51 +624,51 @@ void graniceFigure(int id)
 /*Koliko se svaka figura moze maksimalno kretati po polju*/
     switch(id){
         case 0:    
-            granica.levo=5;
-            granica.desno=4;
-            granica.gore=4;
-            granica.dole=5;
+            granica.levo=4;
+            granica.desno=3;
+            granica.gore=3;
+            granica.dole=4;
             granice++;
 
             sudar(id);
             break;
         case 1:
-            granica.levo=4;
-            granica.desno=3;
-            granica.gore=3;
-            granica.dole=5;
+            granica.levo=3;
+            granica.desno=2;
+            granica.gore=2;
+            granica.dole=4;
             granice++;
             sudar(id);
             break;
         case 2:
-            granica.levo=5;
-            granica.desno=3;
-            granica.gore=3;
-            granica.dole=4;
+            granica.levo=4;
+            granica.desno=2;
+            granica.gore=2;
+            granica.dole=3;
             granice++;
             sudar(id);
             break;
         case 3:
-            granica.levo=4;
-            granica.desno=3;
-            granica.gore=4;
-            granica.dole=4;
+            granica.levo=3;
+            granica.desno=2;
+            granica.gore=3;
+            granica.dole=3;
             granice++;
             sudar(id);
             break;
         case 4:
-            granica.levo=5;
-            granica.desno=3;
-            granica.gore=4;
-            granica.dole=4;
+            granica.levo=4;
+            granica.desno=2;
+            granica.gore=3;
+            granica.dole=3;
             granice++;
             sudar(id);
             break;
         case 5:
-            granica.levo=5;
-            granica.desno=4;
-            granica.gore=2;
-            granica.dole=4;
+            granica.levo=4;
+            granica.desno=3;
+            granica.gore=1;
+            granica.dole=3;
             granice++;
             sudar(id);
             break;
@@ -680,58 +680,59 @@ void sudar(int id)
 /*Postavljamo maksimalno pomenje figura i definicemo tacke za detekciju sudara*/
     switch(id){
         case 0:    
-            low[0].x=5;
-            low[0].y=5;
+            low[0].x=4;
+            low[0].y=4;
             break;
         case 1:
-            low[0].x=5;
-            low[0].y=5;
-            low[1].x=4;
-            low[1].y=5;
-            low[2].x=4;
-            low[2].y=4;
-            low[3].x=6;
-            low[3].y=6;
-            break;
-        case 2:
-            low[0].x=5;
-            low[0].y=5;
-            low[1].x=4;
-            low[1].y=5;
-            low[2].x=5;
-            low[2].y=4;
-            low[3].x=6;
-            low[3].y=5;
-            break;
-        case 3:
-            low[0].x=5;
-            low[0].y=5;
-            low[1].x=4;
-            low[1].y=5;
-            low[2].x=5;
-            low[2].y=6;
-            low[3].x=6;
-            low[3].y=6;
-            break;
-        case 4:
-            low[0].x=5;
-            low[0].y=5;
-            low[1].x=6;
-            low[1].y=5;
-            low[2].x=5;
-            low[2].y=6;
-            low[3].x=6;
-            low[3].y=6;
-            break;
-        case 5:
-            low[0].x=5;
-            low[0].y=5;
-            low[1].x=5;
+            low[0].x=4;
+            low[0].y=4;
+            low[1].x=3;
             low[1].y=4;
-            low[2].x=5;
+            low[2].x=3;
             low[2].y=3;
             low[3].x=5;
-            low[3].y=6;
+            low[3].y=4;
+            break;
+        case 2:
+          low[0].x=4;
+            low[0].y=4;
+            low[1].x=3;
+            low[1].y=4;
+            low[2].x=4;
+            low[2].y=3;
+            low[3].x=5;
+            low[3].y=4;
+
+            break;
+        case 3:
+            low[0].x=4;
+            low[0].y=4;
+            low[1].x=3;
+            low[1].y=4;
+            low[2].x=4;
+            low[2].y=5;
+            low[3].x=5;
+            low[3].y=5;
+            break;
+        case 4:
+             low[0].x=4;
+            low[0].y=4;
+            low[1].x=3;
+            low[1].y=4;
+            low[2].x=4;
+            low[2].y=5;
+            low[3].x=5;
+            low[3].y=5;
+            break;
+        case 5:
+            low[0].x=4;
+            low[0].y=4;
+            low[1].x=4;
+            low[1].y=3;
+            low[2].x=4;
+            low[2].y=2;
+            low[3].x=4;
+            low[3].y=5;
             break;
     }
 }
@@ -1020,8 +1021,8 @@ switch(rotacija.trenutna){
 
 void update_status(int id)
 {
-int a=5+Px;
-int b=5+Py;
+int a=4+Px;
+int b=4+Py;
 int c=Pz;
 status[c][b][a]=1;
 
