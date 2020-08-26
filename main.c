@@ -24,6 +24,12 @@ int Pz=10;
 #define XY 8
 #define Z 15
 
+/*Koordinate misa*/
+int mouse_x = 0;
+int mouse_y = 0;
+
+static float matrix[16];
+
 static int window_width, window_height;
 /*Granice i azuriranja istih*/
 int granice=0;
@@ -36,8 +42,10 @@ int rand_count=0;
 static void on_display(void);
 static void on_reshape(int width, int height);
 static void on_keyboard(unsigned char key, int x, int y);
+static void on_mouse(int  button, int state, int x, int y);
 static void on_timer(int id);
 static void on_arrow(int key, int x, int y);
+static void on_motion(int x, int y);
 static void set_material(int id);
 void zaustavljanjeFigure(void);
 void rotiraj(void);
@@ -96,14 +104,17 @@ int main(int argc, char **argv)
     glutInitWindowPosition(1000, 1000);
     glutCreateWindow(argv[0]);
 
+ mouse_x = 0;
+ mouse_y = 0;
+
+
     glutDisplayFunc(on_display);
 	glutReshapeFunc(on_reshape);
     glutKeyboardFunc(on_keyboard);
     glutSpecialFunc(on_arrow);
+    glutMouseFunc(on_mouse);
+    glutMotionFunc(on_motion);
     
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
     /*Inicijalizujemo stanje rotacije*/
     rotacija.da_ne = false;
     rotacija.x = rotacija.y = rotacija.z = 0;
@@ -134,11 +145,16 @@ int main(int argc, char **argv)
             for(int k = 0; k < XY; k++)
                 status[i][j][k]=0;
     
+
     /* Postavlja se pozadina */
     glClearColor(0.25, 0.25, 0.25, 0);
 	glEnable(GL_DEPTH_TEST);
     
     glEnable(GL_NORMALIZE);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glGetFloatv(GL_MODELVIEW_MATRIX, matrix);
 	
     glutMainLoop();
 
@@ -172,6 +188,8 @@ static void on_display(void)
       if(rand_count == MAX)
         rand_count=0;
 
+    glMultMatrixf(matrix);
+    
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
 
@@ -281,6 +299,38 @@ static void on_arrow(int key, int x, int y)
   glutPostRedisplay();
 }
 
+static void on_mouse(int buttun, int state, int x, int y)
+{
+    /* Pamti se pozicija misa. */
+    mouse_x = x;
+    mouse_y = y;
+}
+
+static void on_motion(int x, int y)
+{
+    /* Promene pozicije misa. */
+    int delta_x, delta_y;
+
+    delta_x = x - mouse_x;
+    delta_y = y - mouse_y;
+
+    /* Pamti se nova pozicija misa. */
+    mouse_x = x;
+    mouse_y = y;
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+        glLoadIdentity();
+        glRotatef(45 * (float) delta_x / window_width, 0, 1, 0);
+        glRotatef(45 * (float) delta_y / window_height, 1, 0, 0);
+        glMultMatrixf(matrix);
+
+        glGetFloatv(GL_MODELVIEW_MATRIX, matrix);
+    glPopMatrix();
+
+    glutPostRedisplay();
+
+}
 
 void crtanjeDelovaScene(void)
 {   
