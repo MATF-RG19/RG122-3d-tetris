@@ -1,4 +1,3 @@
-//#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <GL/glut.h>
@@ -15,6 +14,7 @@
 #define Y1 -4
 #define Y2  4
 #define Z1  0
+#define Z2  8
 
 //Za translaciju koja se vrsi pomocu strelica na tastaturi
 int Px=0,Py=0;
@@ -30,15 +30,19 @@ int mouse_y = 0;
 
 static float matrix[16];
 
+//Dimenzije prozora 
 static int window_width, window_height;
 /*Granice i azuriranja istih*/
 int granice=0;
+
+//Racuna koliko je figura palo
+int palo=0;
 
 /*Niz koji se sastoji od random brojeva*/
 #define MAX 100
 int array[MAX];
 int rand_count=0;
-
+//Callback funkcije
 static void on_display(void);
 static void on_reshape(int width, int height);
 static void on_keyboard(unsigned char key, int x, int y);
@@ -46,6 +50,8 @@ static void on_mouse(int  button, int state, int x, int y);
 static void on_timer(int id);
 static void on_arrow(int key, int x, int y);
 static void on_motion(int x, int y);
+
+
 static void set_material(int id);
 void zaustavljanjeFigure(void);
 void rotiraj(void);
@@ -97,17 +103,19 @@ struct lowest{
 
 int main(int argc, char **argv)
 {
+    //Inicijalizacija GLUTa
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
     
+    //Kreira se prozor
     glutInitWindowSize(700, 700);
     glutInitWindowPosition(1000, 1000);
     glutCreateWindow(argv[0]);
 
- mouse_x = 0;
- mouse_y = 0;
+    mouse_x = 0;
+    mouse_y = 0;
 
-
+    //Registruju se funkcije za obradu dogadjaja
     glutDisplayFunc(on_display);
 	glutReshapeFunc(on_reshape);
     glutKeyboardFunc(on_keyboard);
@@ -150,12 +158,15 @@ int main(int argc, char **argv)
     glClearColor(0.25, 0.25, 0.25, 0);
 	glEnable(GL_DEPTH_TEST);
     
+    //Normalizacija
     glEnable(GL_NORMALIZE);
 
+    //Inicijalizacija matrice rotacije
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glGetFloatv(GL_MODELVIEW_MATRIX, matrix);
 	
+    //Glavna petlja
     glutMainLoop();
 
     return 0;
@@ -164,9 +175,12 @@ int main(int argc, char **argv)
 
 static void on_reshape(int width, int height)
 {
+    //Pamte se sirina i visina prozora
     window_width = width;
     window_height = height;
+    //Postavlja se viewport
     glViewport(0, 0, width, height);
+    //Postavljaju se parametri projekcije
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(45, (float) width / height, 1, 1800);
@@ -174,22 +188,26 @@ static void on_reshape(int width, int height)
 
 static void on_display(void)
 {
+    //Postavlja se boja piksela
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    //Postavlja se tacka pogleda
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(0, 0, 18, 
               0, 0, 0, 
               0, 1, 0);
     
+    //Normalizacija vektora 
     glNormal3f(0,0,1);
     
     /*Da vrati brojac na 0*/
       if(rand_count == MAX)
         rand_count=0;
-
+    //Primenjuje se matrica rotacije
     glMultMatrixf(matrix);
     
+    //Podesavamo osvetljenje
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
 
@@ -203,18 +221,21 @@ static void on_display(void)
     glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
     glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+    
+    //Postavljamo materjale
     set_material(13);
-    
+    // Crtanje delova scene 
     crtanjeDelovaScene();
-    
+    // Zaustavljanje figure 
     zaustavljanjeFigure();
-    
+    //Salje se slika na ekran 
     glutSwapBuffers();
 }
 
 
 static void on_timer(int id)
 {
+    //Povecavamo proteklo vreme
     parametar +=2;
      glutPostRedisplay();
     
@@ -229,6 +250,7 @@ static void on_keyboard(unsigned char key, int x, int y)
 {
   switch (key) {
     case 27:
+        printf("\n------------- KRAJ IGRE -------------\n\n****Palo je %d figura!****\n\n",palo);
         exit(0);
         break;
     case 'g':
@@ -335,7 +357,7 @@ static void on_motion(int x, int y)
 void crtanjeDelovaScene(void)
 {   
     /*Crtamo postolje */
-
+    int u,v,c;
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     int k=Z1;
     for(int j=Y1; j<Y2; j++){
@@ -351,6 +373,40 @@ void crtanjeDelovaScene(void)
 
     	glEnd();
     }
+
+    /*Bocne strane*/
+
+    v=Y1;
+    for(u=X1; u < X2; u++){
+      glBegin(GL_QUAD_STRIP);
+        glColor3f(0.9, 0.2, 0.7);
+        for(c=Z1; c <= Z2; c++){
+            glVertex3f(u , -v, c);
+            glVertex3f((u+1) , -v, c);
+        }
+    glEnd();
+    }
+    
+     u=X1;
+    for(v=Y1; v < Y2; v++){
+      glBegin(GL_QUAD_STRIP);
+        glColor3f(0.8, 0.8, 0.1);
+        for(c=Z1; c <= Z2; c++){
+            glVertex3f(-u , -v , c);
+            glVertex3f(-u , -(v+1) , c);
+        }
+    glEnd();
+    }
+    for(v=Y1; v < Y2; v++){
+      glBegin(GL_QUAD_STRIP);
+        glColor3f(0.2, 0.6, 0.3);
+        for(c=Z1; c <= Z2; c++){
+            glVertex3f(u , -v , c);
+            glVertex3f(u , -(v+1) , c);
+        }
+    glEnd();
+    }
+
 
     /*Crtamo matricu stanja*/
 
@@ -385,17 +441,15 @@ void crtanjeDelovaScene(void)
 void zaustavljanjeFigure(void)
 {
 
-int spust=0;
-
 for(int c = Z-1; c >= 0; c--){
     for(int v = 0; v < XY; v++){
         for(int u = 0; u < XY; u++){
             for(int i=0;i<4;i++){
                 if((status[c][v][u]==1 && c==(Pz+low[i].z-1) && v==(low[i].y+Py) && u==(low[i].x+Px)) || Pz <= 0 || Pz+low[i].z <=0){
                     animation_ongoing = 0;
-                    parametar = 0;
-                    spust++;                
+                    parametar = 0;              
                     update_status(array[rand_count]);
+                    palo++;
                     /*Vracamo promenljive na pocetne vrednosti*/
                     Px=0;
                     Py=0;
@@ -410,8 +464,11 @@ for(int c = Z-1; c >= 0; c--){
                         low[i].z=0;
                     }
                     granice=0;   
+
+        
                     /*Proveravamo da li je kraj igre*/
                     if(status[Pz][4][4]==1){
+                        printf("******** GAME OVER ********\n****Palo je %d figura!****\n\n",palo);
                         free_mat(status, Z, XY);
                         exit(0);
                     }                   
@@ -424,6 +481,7 @@ for(int c = Z-1; c >= 0; c--){
 }
 
 }
+
 
 static void set_material(int id)
 {
